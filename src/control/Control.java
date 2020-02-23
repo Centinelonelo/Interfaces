@@ -6,19 +6,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.font.FontRenderContext;
-import java.awt.font.LineBreakMeasurer;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.text.AttributedCharacterIterator;
-import java.text.AttributedString;
-import java.util.function.BiConsumer;
-
+import java.util.Locale;
+import java.util.ResourceBundle;
+import java.util.StringTokenizer;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
@@ -28,6 +23,9 @@ import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
 import javax.swing.undo.UndoManager;
 
+import vista.BarraMenu;
+import vista.PopupMenu;
+
 
 public class Control implements ActionListener, DocumentListener, MouseListener{
 	
@@ -35,8 +33,9 @@ public class Control implements ActionListener, DocumentListener, MouseListener{
 	private JTextPane texto;
 	private String nombre, ruta;
 	private JComboBox cbT, cbF;
-	private JTextField jf;
-	
+	private JTextField jf1, jf2;
+	private BarraMenu menu;
+	private PopupMenu pop;
 	private DocumentEvent de;
 	
 	//Manager para deshacer
@@ -49,10 +48,10 @@ public class Control implements ActionListener, DocumentListener, MouseListener{
 		this.nombre = nombre;
 	}
 	
-	public Control(String nombre, JTextPane texto, JTextField field) {
-		this.nombre = nombre;
+	public Control( JTextPane texto, JTextField jf1, JTextField jf2) {
 		this.texto = texto;
-		this.jf = field;
+		this.jf1 = jf1;
+		this.jf2 = jf2;
 	}
 	
 	public Control(String nombre, JTextPane texto) {
@@ -65,21 +64,27 @@ public class Control implements ActionListener, DocumentListener, MouseListener{
                 manager.addEdit(e.getEdit());
             }
         });
-		
 	}
 	
-	public Control(String nombre, JTextPane texto, JComboBox comboBoxT, JComboBox comboBoxF) {
+	public Control(String nombre, JComboBox cbT, BarraMenu menu, PopupMenu pop) {
+		this.nombre = nombre;
+		this.cbT = cbT;
+		this.menu = menu;
+		this.pop = pop;
+	}
+	
+	public Control(String nombre, JTextPane texto, JComboBox cbT, JComboBox cbF) {
 		this.nombre = nombre;
 		this.texto=texto;
-		this.cbT = comboBoxT;
-		this.cbF = comboBoxF;
+		this.cbT = cbT;
+		this.cbF = cbF;
 		
 	}	
 
+	
+	//Aqui recogemos el evento de click y ejecutamos nuestros metodos
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		
-		
 		
 		switch(nombre) {
 		case "AbrirArchivo":
@@ -90,16 +95,7 @@ public class Control implements ActionListener, DocumentListener, MouseListener{
 				e1.printStackTrace();
 			}break;	
 		case "Nuevo":
-			if (!texto.getText().equals("")) {
-
-                String cosas[] = {"Guardar", "No guardar","Cancelar"};
-                int eleccion = JOptionPane.showOptionDialog(null, "¿Desea guardar los cambios?", "Editor de Texto",
-                    JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, cosas, cosas[0]);
-
-                if (eleccion == 0) {guardarArchivo();texto.setText("");ruta="";}
-                if (eleccion == 1) {texto.setText("");ruta="";}
-            }
-            else texto.setText("");
+				nuevo();
 			break;
 		case "Salir":
 			System.exit(0);
@@ -116,14 +112,10 @@ public class Control implements ActionListener, DocumentListener, MouseListener{
 			break;
 		case "Guardar":
 			guardarArchivo();
+			
 			break;
 		case "Fuente":
-		
-			texto.setFont(new Font((String)cbF.getSelectedItem(),Font.PLAIN, Integer.parseInt(cbT.getSelectedItem().toString())));
-			break;
-		case "TamanyoFuente":
-			texto.setFont(new Font((String)cbF.getSelectedItem(), Font.PLAIN, Integer.parseInt(cbT.getSelectedItem().toString())));
-			
+			texto.setFont(new Font((String)cbF.getSelectedItem(),texto.getFont().getStyle(), Integer.parseInt(cbT.getSelectedItem().toString())));
 			break;
 		case "NLineas":
 			changedUpdate(de);
@@ -133,21 +125,104 @@ public class Control implements ActionListener, DocumentListener, MouseListener{
 			break;
 		case "NPalabras":
 			changedUpdate(de);
-		}		
-		
+			break;
+		case "Idioma":
+			cambiarIdioma();
+			
+		}
 
+	}
+	
+	//Acción abrir nuevo, si tenemos algo nos pregunta para guardar con un JOptionPane
+	public void nuevo() {
+		if (!texto.getText().equals("")) {
 
+            String cosas[] = {"Guardar", "No guardar","Cancelar"};
+            int eleccion = JOptionPane.showOptionDialog(null, "¿Desea guardar los cambios?", "Editor de Texto",
+                JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, cosas, cosas[0]);
+
+            if (eleccion == 0) {guardarArchivo();texto.setText("");ruta="";}
+            if (eleccion == 1) {texto.setText("");ruta="";}
+        }
+        else texto.setText("");
+	}
+	
+	//Este metodo accede a nuestros archivos de recursos para cambiar el idioma de nuestra app
+	public void cambiarIdioma() {
+		if(cbT.getSelectedItem().toString().equals("Español")) {
+			menu.getM1().setText(ResourceBundle.getBundle("Recursos.Etiquetas").getString("menu_Archivo"));
+			menu.getM2().setText(ResourceBundle.getBundle("Recursos.Etiquetas").getString("menu_Editar"));
+			menu.getM3().setText(ResourceBundle.getBundle("Recursos.Etiquetas").getString("menu_Formato"));
+			menu.getM4().setText(ResourceBundle.getBundle("Recursos.Etiquetas").getString("menu_Ayuda"));	
+			menu.getA1().setText(ResourceBundle.getBundle("Recursos.Etiquetas").getString("item_Nuevo"));
+			menu.getA2().setText(ResourceBundle.getBundle("Recursos.Etiquetas").getString("item_Abrir"));
+			menu.getA3().setText(ResourceBundle.getBundle("Recursos.Etiquetas").getString("item_Guardar"));
+			menu.getE1().setText(ResourceBundle.getBundle("Recursos.Etiquetas").getString("item_Deshacer"));
+			menu.getE3().setText(ResourceBundle.getBundle("Recursos.Etiquetas").getString("item_Cortar"));
+			menu.getE4().setText(ResourceBundle.getBundle("Recursos.Etiquetas").getString("item_Copiar"));
+			menu.getE5().setText(ResourceBundle.getBundle("Recursos.Etiquetas").getString("item_Pegar"));
+			menu.getF1().setText(ResourceBundle.getBundle("Recursos.Etiquetas").getString("item_AlinearIzquierda"));
+			menu.getF2().setText(ResourceBundle.getBundle("Recursos.Etiquetas").getString("item_AlinearCentro"));
+			menu.getF3().setText(ResourceBundle.getBundle("Recursos.Etiquetas").getString("item_AlinearDerecha"));
+			menu.getF4().setText(ResourceBundle.getBundle("Recursos.Etiquetas").getString("item_Justificar"));
+			menu.getF5().setText(ResourceBundle.getBundle("Recursos.Etiquetas").getString("item_Negrita"));
+			menu.getF6().setText(ResourceBundle.getBundle("Recursos.Etiquetas").getString("item_Italica"));
+			menu.getF7().setText(ResourceBundle.getBundle("Recursos.Etiquetas").getString("item_Subrayado"));
+			menu.getY2().setText(ResourceBundle.getBundle("Recursos.Etiquetas").getString("item_Informacion"));
+			menu.getY3().setText(ResourceBundle.getBundle("Recursos.Etiquetas").getString("item_Salir"));
+			
+			pop.getCopiar().setText(ResourceBundle.getBundle("Recursos.Etiquetas").getString("item_Copiar"));
+			pop.getCortar().setText(ResourceBundle.getBundle("Recursos.Etiquetas").getString("item_Cortar"));
+			pop.getPegar().setText(ResourceBundle.getBundle("Recursos.Etiquetas").getString("item_Pegar"));
+			pop.getNegrita().setText(ResourceBundle.getBundle("Recursos.Etiquetas").getString("item_Negrita"));
+			pop.getCursiva().setText(ResourceBundle.getBundle("Recursos.Etiquetas").getString("item_Italica"));
+			pop.getSubrayar().setText(ResourceBundle.getBundle("Recursos.Etiquetas").getString("item_Subrayado"));
+			
+			
+		}else if(cbT.getSelectedItem().toString().equals("English")) {
+			menu.getM1().setText(ResourceBundle.getBundle("Recursos.Etiquetas", Locale.US).getString("menu_Archivo"));
+			menu.getM2().setText(ResourceBundle.getBundle("Recursos.Etiquetas", Locale.US).getString("menu_Editar"));
+			menu.getM3().setText(ResourceBundle.getBundle("Recursos.Etiquetas", Locale.US).getString("menu_Formato"));
+			menu.getM4().setText(ResourceBundle.getBundle("Recursos.Etiquetas", Locale.US).getString("menu_Ayuda"));	
+			menu.getA1().setText(ResourceBundle.getBundle("Recursos.Etiquetas", Locale.US).getString("item_Nuevo"));
+			menu.getA2().setText(ResourceBundle.getBundle("Recursos.Etiquetas", Locale.US).getString("item_Abrir"));
+			menu.getA3().setText(ResourceBundle.getBundle("Recursos.Etiquetas", Locale.US).getString("item_Guardar"));
+			menu.getE1().setText(ResourceBundle.getBundle("Recursos.Etiquetas", Locale.US).getString("item_Deshacer"));
+			menu.getE3().setText(ResourceBundle.getBundle("Recursos.Etiquetas", Locale.US).getString("item_Cortar"));
+			menu.getE4().setText(ResourceBundle.getBundle("Recursos.Etiquetas", Locale.US).getString("item_Copiar"));
+			menu.getE5().setText(ResourceBundle.getBundle("Recursos.Etiquetas", Locale.US).getString("item_Pegar"));
+			menu.getF1().setText(ResourceBundle.getBundle("Recursos.Etiquetas", Locale.US).getString("item_AlinearIzquierda"));
+			menu.getF2().setText(ResourceBundle.getBundle("Recursos.Etiquetas", Locale.US).getString("item_AlinearCentro"));
+			menu.getF3().setText(ResourceBundle.getBundle("Recursos.Etiquetas", Locale.US).getString("item_AlinearDerecha"));
+			menu.getF4().setText(ResourceBundle.getBundle("Recursos.Etiquetas", Locale.US).getString("item_Justificar"));
+			menu.getF5().setText(ResourceBundle.getBundle("Recursos.Etiquetas", Locale.US).getString("item_Negrita"));
+			menu.getF6().setText(ResourceBundle.getBundle("Recursos.Etiquetas", Locale.US).getString("item_Italica"));
+			menu.getF7().setText(ResourceBundle.getBundle("Recursos.Etiquetas", Locale.US).getString("item_Subrayado"));
+			menu.getY2().setText(ResourceBundle.getBundle("Recursos.Etiquetas", Locale.US).getString("item_Informacion"));
+			menu.getY3().setText(ResourceBundle.getBundle("Recursos.Etiquetas", Locale.US).getString("item_Salir"));
+			
+			pop.getCopiar().setText(ResourceBundle.getBundle("Recursos.Etiquetas", Locale.US).getString("item_Copiar"));
+			pop.getCortar().setText(ResourceBundle.getBundle("Recursos.Etiquetas", Locale.US).getString("item_Cortar"));
+			pop.getPegar().setText(ResourceBundle.getBundle("Recursos.Etiquetas", Locale.US).getString("item_Pegar"));
+			pop.getNegrita().setText(ResourceBundle.getBundle("Recursos.Etiquetas", Locale.US).getString("item_Negrita"));
+			pop.getCursiva().setText(ResourceBundle.getBundle("Recursos.Etiquetas", Locale.US).getString("item_Italica"));
+			pop.getSubrayar().setText(ResourceBundle.getBundle("Recursos.Etiquetas", Locale.US).getString("item_Subrayado"));
+		}
 	}
 	
 	public void guardarArchivo() {
 		
-			JFileChooser filecho = new JFileChooser();
-			filecho.setDialogTitle("Especifica un archivo para guardarlo");
-			int seleccionUsuario = filecho.showSaveDialog(texto);
-			if(seleccionUsuario == JFileChooser.APPROVE_OPTION) {
-			File archivoAGuardar = filecho.getSelectedFile();
-			
-		}
+		    String sb = texto.getText().toString();
+		    JFileChooser chooser = new JFileChooser();
+		    chooser.setCurrentDirectory(new File("/home/me/Documents"));
+		    int retrival = chooser.showSaveDialog(null);
+		    if (retrival == JFileChooser.APPROVE_OPTION) {
+		    	try(FileWriter fw = new FileWriter(chooser.getSelectedFile()+".txt")) {
+		    	    fw.write(sb.toString());
+		    	} catch (Exception ex) {
+		            ex.printStackTrace();
+		        }
+		    }
 		
 	}
 	
@@ -162,28 +237,29 @@ public class Control implements ActionListener, DocumentListener, MouseListener{
 			return nlineas;
 	}
 	
-	private static String countWords(JTextPane texto) {
-		String miVariable = String.valueOf(texto.getText().length());
-        return miVariable;
-	}
 
+	//Al actualizar el documento realizamos el metodo para contar lineas y contar palabras gracias a StringTokenizer
 	@Override
-	public void insertUpdate(DocumentEvent e) {
-		// TODO Auto-generated method stub
-		jf.setText(""+countLines(texto));
-		//jf.setText(countWords(texto));
+	public void insertUpdate(DocumentEvent e) {	
+		StringTokenizer st = new StringTokenizer(texto.getText());
+        jf1.setText(String.valueOf(st.countTokens()));
+		
+		jf2.setText(""+countLines(texto));
+		
 	}
 
 	@Override
 	public void removeUpdate(DocumentEvent e) {
-		// TODO Auto-generated method stub
-		jf.setText(""+countLines(texto));
-		//jf.setText(countWords(texto));
+		StringTokenizer st = new StringTokenizer(texto.getText());
+        jf1.setText(String.valueOf(st.countTokens()));
+		
+		jf2.setText(""+countLines(texto));
+	
 	}
 
 	@Override
 	public void changedUpdate(DocumentEvent de) {
-		// TODO Auto-generated method stub
+		
 		
 	}
 

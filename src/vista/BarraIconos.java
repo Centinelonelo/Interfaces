@@ -1,13 +1,12 @@
 package vista;
 
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+
 
 import javax.swing.*;
 import javax.swing.JComboBox;
 
-import control.Control;
+
 
 public class BarraIconos extends JToolBar{
 	
@@ -39,20 +38,23 @@ public class BarraIconos extends JToolBar{
 		Fuente.addItem("Courier");
 		Fuente.addItem("Calibri");
 		Fuente.addItem("Dialog");
+		Fuente.setRequestFocusEnabled(false);
 		
 		add(tamanyoFuente);
-		for(int i = 8;i<44;i=i+2) {
+		for(int i = 12;i<50;i=i+2) {
 			String s = i+"";
 			tamanyoFuente.addItem(s);
 		}
+		tamanyoFuente.setRequestFocusEnabled(false);
+		
 		add(new Separator());
 		//Añanimos al menu los botones
 		add(Nuevo);
 		add(AbrirArchivo);
 		add(Guardar);
-		add(Deshacer);
 		//Separador para comodidad visual
 		add(new Separator());
+		add(Deshacer);
 		add(Cortar);
 		add(Copiar);
 		add(Pegar);

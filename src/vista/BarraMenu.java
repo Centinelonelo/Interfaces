@@ -1,7 +1,5 @@
 package vista;
 
-import java.awt.BorderLayout;
-
 import javax.swing.*;
 
 public class BarraMenu extends JMenuBar{
@@ -16,10 +14,8 @@ public class BarraMenu extends JMenuBar{
 		m1.add(a1);
 		m1.add(a2);
 		m1.add(a3);
-		m1.add(a4);
 		
 		m2.add(e1);
-		m2.add(e2);
 		m2.add(e3);
 		m2.add(e4);
 		m2.add(e5);
@@ -54,10 +50,8 @@ public class BarraMenu extends JMenuBar{
 	JMenuItem a1 = new JMenuItem("Nuevo");
 	JMenuItem a2 = new JMenuItem("Abrir");
 	JMenuItem a3 = new JMenuItem("Guardar");
-	JMenuItem a4 = new JMenuItem("Guardar como");
 	
 	JMenuItem e1 = new JMenuItem("Deshacer");
-	JMenuItem e2 = new JMenuItem("Rehacer");
 	JMenuItem e3 = new JMenuItem("Cortar");
 	JMenuItem e4 = new JMenuItem("Copiar");
 	JMenuItem e5 = new JMenuItem("Pegar");
@@ -93,24 +87,14 @@ public class BarraMenu extends JMenuBar{
 	public void setA3(JMenuItem a3) {
 		this.a3 = a3;
 	}
-	public JMenuItem getA4() {
-		return a4;
-	}
-	public void setA4(JMenuItem a4) {
-		this.a4 = a4;
-	}
+
 	public JMenuItem getE1() {
 		return e1;
 	}
 	public void setE1(JMenuItem e1) {
 		this.e1 = e1;
 	}
-	public JMenuItem getE2() {
-		return e2;
-	}
-	public void setE2(JMenuItem e2) {
-		this.e2 = e2;
-	}
+
 	public JMenuItem getE3() {
 		return e3;
 	}
@@ -182,5 +166,29 @@ public class BarraMenu extends JMenuBar{
 	}
 	public void setY3(JMenuItem y3) {
 		this.y3 = y3;
+	}
+	public JMenu getM1() {
+		return m1;
+	}
+	public void setM1(JMenu m1) {
+		this.m1 = m1;
+	}
+	public JMenu getM2() {
+		return m2;
+	}
+	public void setM2(JMenu m2) {
+		this.m2 = m2;
+	}
+	public JMenu getM3() {
+		return m3;
+	}
+	public void setM3(JMenu m3) {
+		this.m3 = m3;
+	}
+	public JMenu getM4() {
+		return m4;
+	}
+	public void setM4(JMenu m4) {
+		this.m4 = m4;
 	}
 }

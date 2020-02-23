@@ -1,18 +1,8 @@
 package vista;
 
-import java.awt.Toolkit;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
-import java.util.function.BiConsumer;
 
-import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
-import javax.swing.KeyStroke;
-import javax.swing.JToolBar.Separator;
-import javax.swing.text.JTextComponent;
 
 public class PopupMenu extends JPopupMenu{
     
